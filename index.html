@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Holiday Search</title>
+    
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+
+    <script>
+   
+   /** Global variables **/
+  // Here we hold a collection of types (like 'church') to place
+  var typeToPlace = new Map();
+  var pl = 0;
+	var request = null;
+  var map = null;
+  
+	/** Function to Sleep */
+  function sleep(miliseconds) 
+  {	
+    var currentTime = new Date().getTime();
+   	while (currentTime + miliseconds >= new Date().getTime()) {}
+  }
+	
+	
+var iterations = 0;
+  
+/** Get places from map by type - if over query limit pause and try once again */
+   function getPlaces(map, item, type)
+   {
+		 request = 
+   		{
+    		location: item.geometry.location,
+    		radius: '2000',
+    		types: [type]
+		};
+		
+		var service = new google.maps.places.PlacesService(map);
+		iterations++;
+		service.nearbySearch(request, getPlacesResults);
+	};
+	
+
+	function getPlacesResults(results, status)
+	{
+	  iterations--;
+		if (status == google.maps.places.PlacesServiceStatus.OK)
+		{
+		  for (var i = 0; i < results.length; i++)
+		  {
+		    
+		    for (var j = 0; j < results[i].types.length; j++) 
+		    {
+		      
+		        if (typeToPlace[results[i].types[j]] == null) 
+		        {
+		          typeToPlace[results[i].types[j]] = new Array(); 
+		          typeToPlace[results[i].types[j]].push(results[i]);
+		        }
+		        else
+		        {
+		          typeToPlace[results[i].types[j]].push(results[i]);
+		        }
+		  
+		    }
+		  }
+		  
+		}
+    else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT)
+    {
+    		if (pl == 0)
+    		{
+    			// Sleep for a while so next request will succeed
+    			sleep(3100);
+    			var service = new google.maps.places.PlacesService(map);
+    			service.nearbySearch(request, getPlacesResults);
+    			iterations++;
+    			pl++;
+    		}
+    		else
+    		{
+    			pl = 0;
+    		}
+    	}
+	}
+   
+
+
+
+	var row = 0;
+	function addToMapAndTable(map, item, tableName, type)
+	{
+		var request = 
+   		{
+    		location: item.geometry.location,
+    		radius: '2000',
+    		types: [type]
+		};
+		  
+    	var service = new google.maps.places.PlacesService(map);
+		  
+		service.nearbySearch(request, function(results, status) 
+		{
+			if (status == google.maps.places.PlacesServiceStatus.OK)
+			{
+				var div = document.getElementById('loctable');
+				var myStr = "";
+			
+				
+    			for (var i = 0; i < results.length; i++)
+    			{
+        			var place = results[i];
+        			
+        			if (row % 4 == 0)
+        			{
+        					myStr += "<div class=\"row\">";
+        			}
+					if (place.photos != null)
+					{
+						myStr += "<div class=\"col\">";
+						myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>"
+						row++;
+					}
+					else
+					{
+						myStr += "<div class=\"col\">";
+						
+						//div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>";
+						row++;
+					}
+					
+					if (row % 4 == 0)
+        			{
+        					myStr += "<\div>";
+        			}
+					
+					
+					//cell1.innerHTML = place.name;
+
+        			var marker = new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+    			}
+    			myStr += "</div>"
+    			div.innerHTML += myStr;
+    		}
+    		else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+    			if (entry == 0)
+    			{
+    				sleep(3000);
+    				addToMapAndTable(map, item, tableName, type);
+    				entry++;
+    			}
+    			else
+    			{
+    				entry = 0;
+    			}
+    		}
+		});
+	}
+    
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: {lat: -34.397, lng: 150.644}
+        });
+        var geocoder = new google.maps.Geocoder();
+		
+        document.getElementById('submit').addEventListener('click', function() {
+          geocodeAddress(geocoder, map);
+          
+  
+        });
+      }
+
+      function geocodeAddress(geocoder, resultsMap) {
+        var address = document.getElementById('address').value;
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status === 'OK') {
+            resultsMap.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+              map: resultsMap,
+              position: results[0].geometry.location
+            });
+            
+            
+
+
+
+          getPlaces(resultsMap, results[0], "amusement_park");
+          getPlaces(resultsMap, results[0], "aquarium");
+          getPlaces(resultsMap, results[0], "art_gallery");
+          getPlaces(resultsMap, results[0], "church");
+          getPlaces(resultsMap, results[0], "city_hall");
+          getPlaces(resultsMap, results[0], "courthouse");
+          getPlaces(resultsMap, results[0], "hindu_temple");
+          getPlaces(resultsMap, results[0], "zoo");
+          getPlaces(resultsMap, results[0], "synagogue");
+          getPlaces(resultsMap, results[0], "stadium");
+          getPlaces(resultsMap, results[0], "library");
+          getPlaces(resultsMap, results[0], "lodging");
+          
+
+          getPlaces(resultsMap, results[0], "restaurant");
+          getPlaces(resultsMap, results[0], "bar");
+          
+          var inter = window.setInterval(function(){ 
+            if (iterations <= 0)
+            {
+              clearInterval(inter);
+              printTouristAttractions();
+              printAccomodations();
+              printRestaurantsAndBars();
+            }
+            else { }
+          }, 6000);
+          
+          } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+          }
+        });
+      }
+      
+      
+      function removeDuplicates( arr, prop ) 
+      {
+        var obj = {};
+    for ( var i = 0, len = arr.length; i < len; i++ ){
+    if(!obj[arr[i][prop]]) obj[arr[i][prop]] = arr[i];
+  }
+  var newArr = [];
+  for ( var key in obj ) newArr.push(obj[key]);
+  return newArr;
+}
+      
+      function printAccomodations()
+      {
+        var myStr = "";
+        row = 0;
+        var div = document.getElementById('accomtable');
+        
+        var x = new Array();
+        var a = typeToPlace["lodging"];
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["lodging"][i]);
+        }
+        
+      
+        a = x;
+        
+        a = removeDuplicates(a, 'name');   
+          
+        	for (var i = 0; i < a.length; i++)
+    			{
+        			var place = a[i];
+        	   
+        			if (row % 4 == 0)
+        			{
+        					myStr += "<div class=\"row\">";
+        			}
+					if (place.photos != null)
+					{
+						myStr += "<div class=\"col\">";
+						myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>"
+						row++;
+					}
+					else
+					{
+						myStr += "<div class=\"col\">";
+						
+						//div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>";
+						row++;
+					}
+					
+					if (row % 4 == 0)
+        			{
+        					myStr += "</div>";
+        			}
+					
+					
+					
+        		var marker = new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+    			}
+    			myStr += "</div>"
+    			div.innerHTML += myStr;
+    			
+      }
+      
+      
+      function printRestaurantsAndBars()
+      {
+        var myStr = "";
+        row = 0;
+        var div = document.getElementById('resttable');
+        
+        var x = new Array();
+        var a = typeToPlace["restaurant"];
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["restaurant"][i]);
+        }
+        
+        a = typeToPlace["bar"];
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["bar"][i]);
+        }
+        a = x;
+        
+        a = removeDuplicates(a, 'name');   
+          
+        	for (var i = 0; i < a.length; i++)
+    			{
+        			var place = a[i];
+        	   
+        			if (row % 4 == 0)
+        			{
+        					myStr += "<div class=\"row\">";
+        			}
+					if (place.photos != null)
+					{
+						myStr += "<div class=\"col\">";
+						myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>"
+						row++;
+					}
+					else
+					{
+						myStr += "<div class=\"col\">";
+						
+						//div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>";
+						row++;
+					}
+					
+					if (row % 4 == 0)
+        			{
+        					myStr += "</div>";
+        			}
+					
+					
+					
+        		var marker = new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+    			}
+    			myStr += "</div>"
+    			div.innerHTML += myStr;
+    			
+      }
+      
+      function printTouristAttractions()
+      {
+        
+        
+
+          
+          
+        var myStr = "";
+        var div = document.getElementById('loctable');
+        row = 0;
+        
+        var x = new Array();
+        var a = typeToPlace["amusement_park"];
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["amusement_park"][i]);
+        }
+        
+        a = typeToPlace["aquarium"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["aquarium"][i]);
+        }
+        
+        a = typeToPlace["art_gallery"];
+        
+        if (a != null)
+        {
+          
+        
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["art_gallery"][i]);
+        }
+        
+        a = typeToPlace["church"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["church"][i]);
+        }
+        
+        a = typeToPlace["city_hall"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["city_hall"][i]);
+        }
+        
+        a = typeToPlace["courthouse"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["courthouse"][i]);
+        }
+        
+        a = typeToPlace["hindu_temple"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["hindu_temple"][i]);
+        }
+        
+        a = typeToPlace["zoo"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["zoo"][i]);
+        }
+        
+        a = typeToPlace["synagogue"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["synagogue"][i]);
+        }
+        
+        a = typeToPlace["stadium"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["stadium"][i]);
+        }
+        
+        a = typeToPlace["library"];
+        
+        if (a != null)
+        {
+          for (var i = 0; i < a.length; i++)
+            x.push(typeToPlace["library"][i]);
+        }
+        
+        
+        a = x;
+        
+        a = removeDuplicates(a, 'name'); 
+        	for (var i = 0; i < a.length; i++)
+    			{
+        			var place = a[i];
+        			
+        			if (row % 4 == 0)
+        			{
+        					myStr += "<div class=\"row\">";
+        			}
+					if (place.photos != null)
+					{
+						myStr += "<div class=\"col\">";
+						myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>"
+						row++;
+					}
+					else
+					{
+						myStr += "<div class=\"col\">";
+						
+						//div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+						myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+						myStr += "<h5>" + place.name + "</h5>";
+						myStr += "</div>";
+						row++;
+					}
+					
+					if (row % 4 == 0)
+        			{
+        					myStr += "</div>";
+        			}
+					
+					
+					
+        		var marker = new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+    			}
+    			myStr += "</div>"
+    			div.innerHTML += myStr;
+    			
+      }
+      
+    </script>
+   
+   <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlb2WmxY13HJMdC19qGQ4ROUqWvZ2BKMQ&callback=initMap&libraries=places">
+    </script>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 20px;
+      }
+     
+    </style>
+  </head>
+  <body>
+  	<center><h3>Search for your next Holiday Destination</h3></center>
+  	<br>
+    <div id="searchbox">
+      <input id="address" type="textbox" value="Drogheda, Ireland">
+      <input id="submit" type="button" value="Search">
+    </div>
+    <br>
+    
+    <div id="map"></div>
+    
+    
+    <h4>Tourist Attractions</h4>
+    <div class="container" id="loctable" style="width:80%">
+	</div>
+    
+    
+	<br>
+	<h4>Accomodation</h4>
+    <div class="container" id="accomtable" style="width:80%">
+	</div>
+	
+	<br>
+	<h4>Restaurants and Bars</h4>
+    <div class="container" id="resttable" style="width:80%">
+	</div>
+
+	
+	
+
+  </body>
+</html>
