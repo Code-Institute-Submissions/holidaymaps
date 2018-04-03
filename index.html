@@ -68,70 +68,6 @@
 
         var row = 0;
 
-        function addToMapAndTable(map, item, tableName, type) {
-            var request = {
-                location: item.geometry.location,
-                radius: '2000',
-                types: [type]
-            };
-
-            var service = new google.maps.places.PlacesService(map);
-
-            service.nearbySearch(request, function(results, status) {
-                if (status == google.maps.places.PlacesServiceStatus.OK) {
-                    var div = document.getElementById('loctable');
-                    var myStr = "";
-
-                    for (var i = 0; i < results.length; i++) {
-                        var place = results[i];
-
-                        if (row % 4 == 0) {
-                            myStr += "<div class=\"row\">";
-                        }
-                        if (place.photos != null) {
-                            myStr += "<div class=\"col\">";
-                            myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                                'maxWidth': 200,
-                                'maxHeight': 200
-                            }) + "\" >";
-                            myStr += "<h5>" + place.name + "</h5>";
-                            myStr += "</div>"
-                            row++;
-                        } else {
-                            myStr += "<div class=\"col\">";
-
-                            //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                            myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
-                            myStr += "<h5>" + place.name + "</h5>";
-                            myStr += "</div>";
-                            row++;
-                        }
-
-                        if (row % 4 == 0) {
-                            myStr += "<\div>";
-                        }
-
-                        //cell1.innerHTML = place.name;
-
-                        var marker = new google.maps.Marker({
-                            map: map,
-                            position: place.geometry.location,
-                            title: place.name
-                        });
-                    }
-                    myStr += "</div>"
-                    div.innerHTML += myStr;
-                } else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-                    if (entry == 0) {
-                        sleep(3000);
-                        addToMapAndTable(map, item, tableName, type);
-                        entry++;
-                    } else {
-                        entry = 0;
-                    }
-                }
-            });
-        }
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -247,7 +183,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
@@ -308,7 +244,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
@@ -435,7 +371,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.jpg\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
