@@ -5,6 +5,7 @@
     <title>Holiday Search</title>
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    
 
     <script>
         /** Global variables **/
@@ -76,7 +77,7 @@
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 14,
+                zoom: 1,
                 center: {
                     lat: -34.397,
                     lng: 150.644
@@ -88,6 +89,7 @@
                 geocodeAddress(geocoder, map);
 
             });
+            
             service = new google.maps.places.PlacesService(map);
         }
 
@@ -108,31 +110,40 @@
                     div.innerHTML = "";
 
                     typeToPlace = new Map();
-
-
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "amusement_park")}, 0);
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "aquarium")}, 2000);
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "art_gallery")}, 4000);
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "church")}, 6000);
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "city_hall")}, 8000);
+    
+                    map.setZoom(14);
                     
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "zoo")}, 10000);
                     
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "stadium")}, 12000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "amusement_park");document.getElementById("progressBar").style.width="8%";document.getElementById("progressBar").innerHTML="8%";}, 0);
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "library")}, 14000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "aquarium");document.getElementById("progressBar").style.width="16%";document.getElementById("progressBar").innerHTML="16%";}, 2000);
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "lodging")}, 16000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "art_gallery");document.getElementById("progressBar").style.width="24%";document.getElementById("progressBar").innerHTML="Gathering Data: 24%";}, 4000);
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "restaurant")}, 18000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "church");document.getElementById("progressBar").style.width="32%";document.getElementById("progressBar").innerHTML="Gathering Data: 32%";}, 6000);
                     
-                    setTimeout(function(){getPlaces(resultsMap, results[0], "bar")}, 20000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "city_hall");document.getElementById("progressBar").style.width="40%";document.getElementById("progressBar").innerHTML="Gathering Data: 40%";}, 8000);
                     
-                    setTimeout(function(){printRestaurantsAndBars()}, 22000);
-                     setTimeout(function(){printAccomodations()}, 23000);
-                     setTimeout(function(){printTouristAttractions()}, 24000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "zoo");document.getElementById("progressBar").style.width="48%";document.getElementById("progressBar").innerHTML="Gathering Data: 48%";}, 10000);
+                    
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "stadium");document.getElementById("progressBar").style.width="56%";document.getElementById("progressBar").innerHTML="Gathering Data: 56%";}, 12000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "library");document.getElementById("progressBar").style.width="64%";document.getElementById("progressBar").innerHTML="Gathering Data: 64%";}, 14000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "lodging");document.getElementById("progressBar").style.width="72%";document.getElementById("progressBar").innerHTML="Gathering Data: 72%";}, 16000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "restaurant");document.getElementById("progressBar").style.width="80%";document.getElementById("progressBar").innerHTML="Gathering Data: 80%";}, 18000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "bar"); document.getElementById("progressBar").style.width="88%";document.getElementById("progressBar").innerHTML="Gathering Data: 88%";}, 20000);
+                    
+                    setTimeout(function(){printRestaurantsAndBars();document.getElementById("progressBar").style.width="90%";document.getElementById("progressBar").innerHTML="Gathering Data: 90%";}, 22000);
+                     setTimeout(function(){printAccomodations();document.getElementById("progressBar").style.width="95%";document.getElementById("progressBar").innerHTML="Gathering Data: 95%";}, 23000);
+                     setTimeout(function(){printTouristAttractions();document.getElementById("progressBar").style.width="100%";document.getElementById("progressBar").innerHTML="Data Gathered";}, 24000);
+                     
                      
                      /*
                     var inter = window.setInterval(function() {
@@ -196,7 +207,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
@@ -267,7 +278,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
@@ -404,7 +415,7 @@
                     myStr += "<div class=\"col\">";
 
                     //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"question.png\" width=\"100px\" height=\"100px\" \>";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
                     myStr += "<h5>" + place.name + "</h5>";
                     myStr += "</div>";
                     row++;
@@ -461,10 +472,14 @@
     <br>
     <div id="searchbox">
         <input id="address" type="textbox" value="Drogheda, Ireland">
-        <input id="submit" type="button" value="Search">
+        <input id="submit" type="button" value="Search" data-toggle="modal" data-target="#myModal">
     </div>
     <br>
-
+    <div class="progress">
+      
+  <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+<br>
     <div id="map"></div>
 
     <h4>Tourist Attractions</h4>
@@ -480,7 +495,11 @@
     <h4>Restaurants and Bars</h4>
     <div class="container" id="resttable" style="width:80%">
     </div>
+    
 
-</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    </body>
+
 
 </html>
