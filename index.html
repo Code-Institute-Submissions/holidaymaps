@@ -10,14 +10,19 @@
         /** Global variables **/
         // Here we hold a collection of types (like 'church') to place
         var typeToPlace = new Map();
-        var pl = 0;
+        var asyncDone = 0;
         var request = null;
         var map = null;
-
+        var service = null;
         /** Function to Sleep */
         function sleep(miliseconds) {
+          /*
             var currentTime = new Date().getTime();
             while (currentTime + miliseconds >= new Date().getTime()) {}
+            */
+            wait = true;
+            
+            setTimeout("wait = true", miliseconds);
         }
 
         var iterations = 0;
@@ -30,13 +35,15 @@
                 types: [type]
             };
 
-            var service = new google.maps.places.PlacesService(map);
+            
             iterations++;
-            service.nearbySearch(request, getPlacesResults);
+            setTimeout(service.nearbySearch(request, getPlacesResults), 3200);
         };
 
-        function getPlacesResults(results, status) {
+        function getPlacesResults(results, status, pagination) {
             iterations--;
+            
+            
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 for (var i = 0; i < results.length; i++) {
 
@@ -51,18 +58,16 @@
 
                     }
                 }
+                if (pagination.hasNextPage) {
+                  sleep(5200);
+                  pagination.nextPage();
+                }  
+                
+                
 
             } else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-                if (pl == 0) {
-                    // Sleep for a while so next request will succeed
-                    sleep(3100);
-                    var service = new google.maps.places.PlacesService(map);
-                    service.nearbySearch(request, getPlacesResults);
-                    iterations++;
-                    pl++;
-                } else {
-                    pl = 0;
-                }
+                alert("Over Limit");
+         
             }
         }
 
@@ -83,6 +88,7 @@
                 geocodeAddress(geocoder, map);
 
             });
+            service = new google.maps.places.PlacesService(map);
         }
 
         function geocodeAddress(geocoder, resultsMap) {
@@ -92,10 +98,7 @@
             }, function(results, status) {
                 if (status === 'OK') {
                     resultsMap.setCenter(results[0].geometry.location);
-                    var marker = new google.maps.Marker({
-                        map: resultsMap,
-                        position: results[0].geometry.location
-                    });
+                    
 
                     var div = document.getElementById('accomtable');
                     div.innerHTML = "";
@@ -106,22 +109,32 @@
 
                     typeToPlace = new Map();
 
-                    getPlaces(resultsMap, results[0], "amusement_park");
-                    getPlaces(resultsMap, results[0], "aquarium");
-                    getPlaces(resultsMap, results[0], "art_gallery");
-                    getPlaces(resultsMap, results[0], "church");
-                    getPlaces(resultsMap, results[0], "city_hall");
-                    getPlaces(resultsMap, results[0], "courthouse");
-                    getPlaces(resultsMap, results[0], "hindu_temple");
-                    getPlaces(resultsMap, results[0], "zoo");
-                    getPlaces(resultsMap, results[0], "synagogue");
-                    getPlaces(resultsMap, results[0], "stadium");
-                    getPlaces(resultsMap, results[0], "library");
-                    getPlaces(resultsMap, results[0], "lodging");
 
-                    getPlaces(resultsMap, results[0], "restaurant");
-                    getPlaces(resultsMap, results[0], "bar");
-
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "amusement_park")}, 0);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "aquarium")}, 2000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "art_gallery")}, 4000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "church")}, 6000);
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "city_hall")}, 8000);
+                    
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "zoo")}, 10000);
+                    
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "stadium")}, 12000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "library")}, 14000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "lodging")}, 16000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "restaurant")}, 18000);
+                    
+                    setTimeout(function(){getPlaces(resultsMap, results[0], "bar")}, 20000);
+                    
+                    setTimeout(function(){printRestaurantsAndBars()}, 22000);
+                     setTimeout(function(){printAccomodations()}, 23000);
+                     setTimeout(function(){printTouristAttractions()}, 24000);
+                     
+                     /*
                     var inter = window.setInterval(function() {
                         if (iterations <= 0) {
                             clearInterval(inter);
@@ -130,8 +143,8 @@
                             printAccomodations();
                             printRestaurantsAndBars();
                         } else {}
-                    }, 6000);
-
+                    }, 6100);
+*/
                 } else {
                     alert('Geocode was not successful for the following reason: ' + status);
                 }
@@ -192,12 +205,22 @@
                 if (row % 4 == 0) {
                     myStr += "</div>";
                 }
+                
+                var image = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25)
+          };
 
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: place.geometry.location,
-                    title: place.name
-                });
+          var marker = new google.maps.Marker({
+            map: map,
+            icon: image,
+            title: place.name,
+            position: place.geometry.location
+          });
+
             }
             myStr += "</div>"
             div.innerHTML += myStr;
@@ -254,11 +277,21 @@
                     myStr += "</div>";
                 }
 
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: place.geometry.location,
-                    title: place.name
-                });
+               var image = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25)
+          };
+
+          var marker = new google.maps.Marker({
+            map: map,
+            icon: image,
+            title: place.name,
+            position: place.geometry.location
+          });
+          
             }
             myStr += "</div>"
             div.innerHTML += myStr;
@@ -381,12 +414,21 @@
                     myStr += "</div>";
                 }
 
-                var marker = new google.maps.Marker({
-                    map: map,
-                    position: place.geometry.location,
-                    title: place.name
-                });
-            }
+                var image = {
+            url: place.icon,
+            size: new google.maps.Size(71, 71),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(17, 34),
+            scaledSize: new google.maps.Size(25, 25)
+          };
+
+          var marker = new google.maps.Marker({
+            map: map,
+            icon: image,
+            title: place.name,
+            position: place.geometry.location
+          });
+        }
             myStr += "</div>"
             div.innerHTML += myStr;
 
