@@ -640,23 +640,50 @@ function createMarker(marker, place) {
   <div class="col">
     <div id="map"></div>
   </div>
-  <div class="col" style="overflow:scroll; height:60%;">
-    
-    <h5>Tourist Attractions</h4>
-    <div class="container" id="loctable" style="width:80%">
+  <div id="accordion" class="col" style="overflow:scroll; height:60%;">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Tourist Attractions
+        </button>
+      </h5>
     </div>
 
-    <br>
-    <h5>Accomodation</h4>
-    <div class="container" id="accomtable" style="width:80%">
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body" id="loctable">
+        
+      </div>
     </div>
-
-    <br>
-    <h5>Restaurants and Bars</h4>
-    <div class="container" id="resttable" style="width:80%">
-    </div>
-    
   </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Accomodation
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body" id="accomtable">
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Restaurants
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+      <div class="card-body" id="resttable">
+      </div>
+    </div>
+  </div>
+</div>
+  
 </div>
    
 
