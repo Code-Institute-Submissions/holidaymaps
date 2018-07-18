@@ -4,13 +4,15 @@
 <head>
     <title>Holiday Search</title>
 
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="spinner/css/iosOverlay.css">
 
     <style>
         
     </style>
-
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlb2WmxY13HJMdC19qGQ4ROUqWvZ2BKMQ&callback=initMap&libraries=places">
+    </script>
     <script>
         /** Global variables **/
         // Here we hold a collection of types (like 'church') to place
@@ -19,7 +21,9 @@
         var request = null;
         var map = null;
         var service = null;
-      
+        var infowindow = null;
+        var markers = []
+
 
         /** Get places from map by type - if over query limit pause and try once again */
         function getPlaces(map, item, type) {
@@ -81,6 +85,19 @@
             });
 
             service = new google.maps.places.PlacesService(map);
+            
+             infowindow = new google.maps.InfoWindow(
+             { 
+                size: new google.maps.Size(150,50)
+                });
+  
+  
+  google.maps.event.addListener(map, 'click', function() {
+        infowindow.close();
+        });
+
+
+  
         }
 
         function geocodeAddress(geocoder, resultsMap) {
@@ -101,40 +118,39 @@
                     typeToPlace = new Map();
 
                     map.setZoom(14);
-//                    $('#myModal').modal('show');
 
-var opts = {
-lines: 13, // The number of lines to draw
-length: 11, // The length of each line
-width: 5, // The line thickness
-radius: 17, // The radius of the inner circle
-corners: 1, // Corner roundness (0..1)
-rotate: 0, // The rotation offset
-color: '#FFF', // #rgb or #rrggbb
-speed: 1, // Rounds per second
-trail: 60, // Afterglow percentage
-shadow: false, // Whether to render a shadow
-hwaccel: false, // Whether to use hardware acceleration
-className: 'spinner', // The CSS class to assign to the spinner
-zIndex: 2e9, // The z-index (defaults to 2000000000)
-top: 'auto', // Top position relative to parent in px
-left: 'auto' // Left position relative to parent in px
-};
-var target = document.createElement("div");
-document.body.appendChild(target);
-var spinner = new Spinner(opts).spin(target);
-var overlay = iosOverlay({
-text: "Loading... 0%",
-spinner: spinner
-});
-
-window.setTimeout(function() {
-overlay.update({
-icon: "spinner/img/check.png",
-text: "Success"
-});
-;
-}, 23000);
+                    var opts = {
+                    lines: 13, // The number of lines to draw
+                    length: 11, // The length of each line
+                    width: 5, // The line thickness
+                    radius: 17, // The radius of the inner circle
+                    corners: 1, // Corner roundness (0..1)
+                    rotate: 0, // The rotation offset
+                    color: '#FFF', // #rgb or #rrggbb
+                    speed: 1, // Rounds per second
+                    trail: 60, // Afterglow percentage
+                    shadow: false, // Whether to render a shadow
+                    hwaccel: false, // Whether to use hardware acceleration
+                    className: 'spinner', // The CSS class to assign to the spinner
+                    zIndex: 2e9, // The z-index (defaults to 2000000000)
+                    top: 'auto', // Top position relative to parent in px
+                    left: 'auto' // Left position relative to parent in px
+                    };
+                    var target = document.createElement("div");
+                    document.body.appendChild(target);
+                    var spinner = new Spinner(opts).spin(target);
+                    var overlay = iosOverlay({
+                    text: "Loading... 0%",
+                    spinner: spinner
+                    });
+                    
+                    window.setTimeout(function() {
+                    overlay.update({
+                    icon: "spinner/img/check.png",
+                    text: "Success"
+                    });
+                    ;
+                    }, 23000);
 
 
 
@@ -253,23 +269,34 @@ text: "Success"
 window.setTimeout(function() {
 overlay.hide();
 }, 24000);
-                    /*
-                    var inter = window.setInterval(function() {
-                        if (iterations <= 0) {
-                            clearInterval(inter);
-
-                            printTouristAttractions();
-                            printAccomodations();
-                            printRestaurantsAndBars();
-                        } else {}
-                    }, 6100);
-*/
+                   
                 } else {
                     alert('Geocode was not successful for the following reason: ' + status);
                 }
             });
         }
+    
 
+function createMarker(marker, place) {
+   
+
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent("<p> Name: " + place.name + "</p><p> Rating:" + place.rating + "</p>"); 
+        infowindow.open(map,marker);
+        map.setZoom(16);
+        map.panTo(marker.position);
+        });
+    markers.push(marker);
+
+}
+ 
+
+
+        function markerdis(i)
+        {
+             google.maps.event.trigger(markers[i], "click");
+        }
+        
         function removeDuplicates(arr, prop) {
             var obj = {};
             for (var i = 0, len = arr.length; i < len; i++) {
@@ -298,34 +325,7 @@ overlay.hide();
 
             for (var i = 0; i < a.length; i++) {
                 var place = a[i];
-
-                if (row % 4 == 0) {
-                    myStr += "<div class=\"row\">";
-                }
-                if (place.photos != null) {
-                    myStr += "<div class=\"col\">";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                        'maxWidth': 200,
-                        'maxHeight': 200
-                    }) + "\" >";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>"
-                    row++;
-                } else {
-                    myStr += "<div class=\"col\">";
-
-                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>";
-                    row++;
-                }
-
-                if (row % 4 == 0) {
-                    myStr += "</div>";
-                }
-
-                var image = {
+                 var image = {
                     url: place.icon,
                     size: new google.maps.Size(71, 71),
                     origin: new google.maps.Point(0, 0),
@@ -339,12 +339,51 @@ overlay.hide();
                     title: place.name,
                     position: place.geometry.location
                 });
+               
+                
+
+                createMarker(marker, place);
+
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+                    
+                    myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                     myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+               
+                
+                
 
             }
             myStr += "</div>"
             div.innerHTML += myStr;
 
         }
+        
+        
+
+
 
         function printRestaurantsAndBars() {
             var myStr = "";
@@ -370,32 +409,6 @@ overlay.hide();
             for (var i = 0; i < a.length; i++) {
                 var place = a[i];
 
-                if (row % 4 == 0) {
-                    myStr += "<div class=\"row\">";
-                }
-                if (place.photos != null) {
-                    myStr += "<div class=\"col\">";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                        'maxWidth': 200,
-                        'maxHeight': 200
-                    }) + "\" >";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>"
-                    row++;
-                } else {
-                    myStr += "<div class=\"col\">";
-
-                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>";
-                    row++;
-                }
-
-                if (row % 4 == 0) {
-                    myStr += "</div>";
-                }
-
                 var image = {
                     url: place.icon,
                     size: new google.maps.Size(71, 71),
@@ -410,6 +423,37 @@ overlay.hide();
                     title: place.name,
                     position: place.geometry.location
                 });
+                
+                createMarker(marker, place);
+                
+                
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+                     myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                     myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+                
 
             }
             myStr += "</div>"
@@ -507,33 +551,7 @@ overlay.hide();
             for (var i = 0; i < a.length; i++) {
                 var place = a[i];
 
-                if (row % 4 == 0) {
-                    myStr += "<div class=\"row\">";
-                }
-                if (place.photos != null) {
-                    myStr += "<div class=\"col\">";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                        'maxWidth': 200,
-                        'maxHeight': 200
-                    }) + "\" >";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>"
-                    row++;
-                } else {
-                    myStr += "<div class=\"col\">";
-
-                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                    myStr += "<h5>" + place.name + "</h5>";
-                    myStr += "</div>";
-                    row++;
-                }
-
-                if (row % 4 == 0) {
-                    myStr += "</div>";
-                }
-
-                var image = {
+            var image = {
                     url: place.icon,
                     size: new google.maps.Size(71, 71),
                     origin: new google.maps.Point(0, 0),
@@ -547,6 +565,36 @@ overlay.hide();
                     title: place.name,
                     position: place.geometry.location
                 });
+                
+                createMarker(marker, place);
+                
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+                     myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                     myStr += '<a href="javascript:markerdis(' + (markers.length-1) + ')">' +'<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+                
             }
             myStr += "</div>"
             div.innerHTML += myStr;
@@ -554,8 +602,7 @@ overlay.hide();
         }
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlb2WmxY13HJMdC19qGQ4ROUqWvZ2BKMQ&callback=initMap&libraries=places">
-    </script>
+    
     <style>
         /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
