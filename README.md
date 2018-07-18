@@ -6,5 +6,5 @@ The website uses bootstrap, Goole Maps API and Google Places API.
 
 The website requires a loading spinner when the search is issued, due to restraints in the Google Maps / Places API.
 
-The loading  spinner is called circular loader and is a third party library used.
+The loading  spinner is called iosOverlay and is a third party library used for the spinner.
 
