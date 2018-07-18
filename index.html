@@ -5,10 +5,12 @@
     <title>Holiday Search</title>
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="spinner/css/iosOverlay.css">
+
     <style>
         
     </style>
-   
+
     <script>
         /** Global variables **/
         // Here we hold a collection of types (like 'church') to place
@@ -99,246 +101,158 @@
                     typeToPlace = new Map();
 
                     map.setZoom(14);
-                    $('#myModal').modal('show');
-                    $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.0,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: undefined,
-                                animation: true
-                        
-                    });
+//                    $('#myModal').modal('show');
+
+var opts = {
+lines: 13, // The number of lines to draw
+length: 11, // The length of each line
+width: 5, // The line thickness
+radius: 17, // The radius of the inner circle
+corners: 1, // Corner roundness (0..1)
+rotate: 0, // The rotation offset
+color: '#FFF', // #rgb or #rrggbb
+speed: 1, // Rounds per second
+trail: 60, // Afterglow percentage
+shadow: false, // Whether to render a shadow
+hwaccel: false, // Whether to use hardware acceleration
+className: 'spinner', // The CSS class to assign to the spinner
+zIndex: 2e9, // The z-index (defaults to 2000000000)
+top: 'auto', // Top position relative to parent in px
+left: 'auto' // Left position relative to parent in px
+};
+var target = document.createElement("div");
+document.body.appendChild(target);
+var spinner = new Spinner(opts).spin(target);
+var overlay = iosOverlay({
+text: "Loading... 0%",
+spinner: spinner
+});
+
+window.setTimeout(function() {
+overlay.update({
+icon: "spinner/img/check.png",
+text: "Success"
+});
+;
+}, 23000);
+
+
+
+
+
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "amusement_park");
-                       $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.08,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "8%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 8%"
+                        });
                     }, 0);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "aquarium");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.16,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "16%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                           
+                            text: "Loading... 16%"
+                        });
                     }, 2000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "art_gallery");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.24,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "24%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 24%"
+                        });
                     }, 4000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "church");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.32,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "32%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 32%"
+                        });
                     }, 6000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "city_hall");
-                       $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.40,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "40%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 40%"
+                        });
                     }, 8000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "zoo");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.48,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "48%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 48%"
+                        });
                     }, 10000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "stadium");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.56,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "56%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 56%"
+                        });
                     }, 12000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "library");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.64,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "64%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 64%"
+                        });
                     }, 14000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "lodging");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.72,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "72%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 72%"
+                        });
                     }, 16000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "restaurant");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.80,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "80%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 80%"
+                        });
                     }, 18000);
 
                     setTimeout(function() {
                         getPlaces(resultsMap, results[0], "bar");
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.88,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "88%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 88%"
+                        });
                     }, 20000);
 
                     setTimeout(function() {
                         printRestaurantsAndBars();
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.90,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "90%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 95%"
+                        });
                     }, 21000);
                     setTimeout(function() {
                         printAccomodations();
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 0.95,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "95%",
-                                animation: true
-                        
-                    });
+                        overlay.update({
+                            
+                            text: "Loading... 97%"
+                        });
                     }, 22000);
                     setTimeout(function() {
                         printTouristAttractions();
-                        $('#demo').waterbubble({
-                                radius: 80,
-                                lineWidth: undefined,
-                                data: 1.0,
-                                waterColor: 'rgba(25, 139, 201, 1)',
-                                textColor: 'rgba(06, 85, 128, 0.8)',
-                                font: '',
-                                wave: true,
-                                txt: "100%",
-                                animation: true
-                        
-                    });
+                       overlay.update({
+                            
+                            text: "Loading... 99%"
+                        });
                     }, 23000);
 
-                    setTimeout(function() {
-                         $('#myModal').modal('hide');
-                    }, 24000);
-                   
-                    
+window.setTimeout(function() {
+overlay.hide();
+}, 24000);
                     /*
                     var inter = window.setInterval(function() {
                         if (iterations <= 0) {
@@ -666,19 +580,6 @@
     <br>
   
 
-<!-- Modal -->
-<div id="myModal" class="modal fade" style='background-color: transparent' role="dialog">
-  <div class="modal-dialog" style='background-color: transparent'>
-
-    <!-- Modal content-->
-    <div class="modal-content" >
-      
-      <div class="modal-body text-center" style='background-color: transparent'>
-        <canvas id="demo"></canvas>
-      </div>
-    </div>
-
-  </div>
 </div>
     <div id="searchbox">
         <input id="address" type="textbox" value="Drogheda, Ireland">
@@ -717,7 +618,10 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="js/bootstrap.js"></script>
-    <script src="bubble/waterbubble.js"></script>
+    <script src="spinner/js/spin.min.js"></script>
+
+    <script src="spinner/js/iosOverlay.js"></script>
+
 
 </body>
 
