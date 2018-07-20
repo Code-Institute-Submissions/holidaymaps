@@ -8,4 +8,4 @@ The website requires a loading spinner when the search is issued, due to restrai
 
 The loading  spinner is called iosOverlay and is a third party library used for the spinner.
 
-Google maps side bar code was taken from https://stackoverflow.com/questions/33506720/creating-a-sidebar-with-links-to-google-map-points
+Google maps side bar code was taken and adapted from example code at https://stackoverflow.com/questions/33506720/creating-a-sidebar-with-links-to-google-map-points
