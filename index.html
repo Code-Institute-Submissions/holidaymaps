@@ -9,631 +9,633 @@
     <link rel="stylesheet" href="spinner/css/iosOverlay.css">
 
     <style>
-        
+
     </style>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlb2WmxY13HJMdC19qGQ4ROUqWvZ2BKMQ&callback=initMap&libraries=places">
     </script>
     <script>
-    /** Global variables **/
-    // Here we hold a collection of types (like 'church') to place
-    var typeToPlace = new Map();
+        /** Global variables **/
+        // Here we hold a collection of types (like 'church') to place
+        var typeToPlace = new Map();
 
-    var request = null;
-    var map = null;
-    var service = null;
-    var infowindow = null;
-    var markers = []
-    var detailsMap = new Map();
-    
-    /** Get places from map by type - if over query limit pause and try once again */
-    function getPlaces(map, item, type) {
-        request = {
-            location: item.geometry.location,
-            radius: '2000',
-            types: [type]
+        var request = null;
+        var map = null;
+        var service = null;
+        var infowindow = null;
+        var markers = []
+        var detailsMap = new Map();
+
+        /** Get places from map by type - if over query limit pause and try once again */
+        function getPlaces(map, item, type) {
+            request = {
+                location: item.geometry.location,
+                radius: '2000',
+                types: [type]
+            };
+
+            setTimeout(service.nearbySearch(request, getPlacesResults), 3200);
+
+
         };
 
-        setTimeout(service.nearbySearch(request, getPlacesResults), 3200);
-        
-      
-    };
-    
-    
-    
-    function getPlacesResults(results, status, pagination) {
 
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            for (var i = 0; i < results.length; i++) {
-            
-                detailsMap[results[i].id] = results[i];
-                
-                for (var j = 0; j < results[i].types.length; j++) {
 
-                    if (typeToPlace[results[i].types[j]] == null) {
-                        typeToPlace[results[i].types[j]] = new Array();
-                        typeToPlace[results[i].types[j]].push(results[i]);
-                    } else {
-                        typeToPlace[results[i].types[j]].push(results[i]);
+        function getPlacesResults(results, status, pagination) {
+
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                for (var i = 0; i < results.length; i++) {
+
+                    detailsMap[results[i].id] = results[i];
+
+                    for (var j = 0; j < results[i].types.length; j++) {
+
+                        if (typeToPlace[results[i].types[j]] == null) {
+                            typeToPlace[results[i].types[j]] = new Array();
+                            typeToPlace[results[i].types[j]].push(results[i]);
+                        } else {
+                            typeToPlace[results[i].types[j]].push(results[i]);
+                        }
+
                     }
 
                 }
-                
-            }
-            if (pagination.hasNextPage) {
-                setTimeout(function() {
-                    pagination.nextPage();
-                }, 2100);
+                if (pagination.hasNextPage) {
+                    setTimeout(function() {
+                        pagination.nextPage();
+                    }, 2100);
+
+                }
+
+            } else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+                alert("Over Limit");
 
             }
+        }
 
-        } else if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-            alert("Over Limit");
+        var row = 0;
+
+        function initMap() {
+
+
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 1,
+                center: {
+                    lat: -34.397,
+                    lng: 150.644
+                }
+            });
+            var geocoder = new google.maps.Geocoder();
+
+            document.getElementById('submit').addEventListener('click', function() {
+                geocodeAddress(geocoder, map);
+
+            });
+
+            service = new google.maps.places.PlacesService(map);
+
+            infowindow = new google.maps.InfoWindow({
+                size: new google.maps.Size(150, 50)
+            });
+
+
+            google.maps.event.addListener(map, 'click', function() {
+                infowindow.close();
+            });
+
+
 
         }
-    }
 
-    var row = 0;
+        function geocodeAddress(geocoder, resultsMap) {
+            var address = document.getElementById('address').value;
+            geocoder.geocode({
+                'address': address
+            }, function(results, status) {
+                if (status === 'OK') {
+                    resultsMap.setCenter(results[0].geometry.location);
 
-    function initMap() {
+                    var div = document.getElementById('accomtable');
+                    div.innerHTML = "";
+                    div = document.getElementById('resttable');
+                    div.innerHTML = "";
+                    div = document.getElementById('loctable');
+                    div.innerHTML = "";
+
+                    typeToPlace = new Map();
+
+                    map.setZoom(14);
+
+                    var opts = {
+                        lines: 13, // The number of lines to draw
+                        length: 11, // The length of each line
+                        width: 5, // The line thickness
+                        radius: 17, // The radius of the inner circle
+                        corners: 1, // Corner roundness (0..1)
+                        rotate: 0, // The rotation offset
+                        color: '#FFF', // #rgb or #rrggbb
+                        speed: 1, // Rounds per second
+                        trail: 60, // Afterglow percentage
+                        shadow: false, // Whether to render a shadow
+                        hwaccel: false, // Whether to use hardware acceleration
+                        className: 'spinner', // The CSS class to assign to the spinner
+                        zIndex: 2e9, // The z-index (defaults to 2000000000)
+                        top: 'auto', // Top position relative to parent in px
+                        left: 'auto' // Left position relative to parent in px
+                    };
+                    var target = document.createElement("div");
+                    document.body.appendChild(target);
+                    var spinner = new Spinner(opts).spin(target);
+                    var overlay = iosOverlay({
+                        text: "Loading... 0%",
+                        spinner: spinner
+                    });
+
+                    window.setTimeout(function() {
+                        overlay.update({
+                            icon: "spinner/img/check.png",
+                            text: "Success"
+                        });;
+                    }, 23000);
 
 
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 1,
-            center: {
-                lat: -34.397,
-                lng: 150.644
-            }
-        });
-        var geocoder = new google.maps.Geocoder();
-
-        document.getElementById('submit').addEventListener('click', function() {
-            geocodeAddress(geocoder, map);
-
-        });
-
-        service = new google.maps.places.PlacesService(map);
-
-        infowindow = new google.maps.InfoWindow({
-            size: new google.maps.Size(150, 50)
-        });
 
 
-        google.maps.event.addListener(map, 'click', function() {
-            infowindow.close();
-        });
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "amusement_park");
+                        overlay.update({
+
+                            text: "Loading... 8%"
+                        });
+                    }, 0);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "aquarium");
+                        overlay.update({
+
+                            text: "Loading... 16%"
+                        });
+                    }, 2000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "art_gallery");
+                        overlay.update({
+
+                            text: "Loading... 24%"
+                        });
+                    }, 4000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "church");
+                        overlay.update({
+
+                            text: "Loading... 32%"
+                        });
+                    }, 6000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "city_hall");
+                        overlay.update({
+
+                            text: "Loading... 40%"
+                        });
+                    }, 8000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "zoo");
+                        overlay.update({
+
+                            text: "Loading... 48%"
+                        });
+                    }, 10000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "stadium");
+                        overlay.update({
+
+                            text: "Loading... 56%"
+                        });
+                    }, 12000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "library");
+                        overlay.update({
+
+                            text: "Loading... 64%"
+                        });
+                    }, 14000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "lodging");
+                        overlay.update({
+
+                            text: "Loading... 72%"
+                        });
+                    }, 16000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "restaurant");
+                        overlay.update({
+
+                            text: "Loading... 80%"
+                        });
+                    }, 18000);
+
+                    setTimeout(function() {
+                        getPlaces(resultsMap, results[0], "bar");
+                        overlay.update({
+
+                            text: "Loading... 88%"
+                        });
+                    }, 20000);
+
+                    setTimeout(function() {
+                        printRestaurantsAndBars();
+                        overlay.update({
+
+                            text: "Loading... 95%"
+                        });
+                    }, 21000);
+                    setTimeout(function() {
+                        printAccomodations();
+                        overlay.update({
+
+                            text: "Loading... 97%"
+                        });
+                    }, 22000);
+                    setTimeout(function() {
+                        printTouristAttractions();
+                        overlay.update({
+
+                            text: "Loading... 99%"
+                        });
+                    }, 23000);
+
+                    window.setTimeout(function() {
+                        overlay.hide();
+                    }, 24000);
+
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        }
+
+
+        function createMarker(marker, place) {
+
+
+            google.maps.event.addListener(marker, 'click', function() {
 
 
 
-    }
-
-    function geocodeAddress(geocoder, resultsMap) {
-        var address = document.getElementById('address').value;
-        geocoder.geocode({
-            'address': address
-        }, function(results, status) {
-            if (status === 'OK') {
-                resultsMap.setCenter(results[0].geometry.location);
-
-                var div = document.getElementById('accomtable');
-                div.innerHTML = "";
-                div = document.getElementById('resttable');
-                div.innerHTML = "";
-                div = document.getElementById('loctable');
-                div.innerHTML = "";
-
-                typeToPlace = new Map();
-
-                map.setZoom(14);
-
-                var opts = {
-                    lines: 13, // The number of lines to draw
-                    length: 11, // The length of each line
-                    width: 5, // The line thickness
-                    radius: 17, // The radius of the inner circle
-                    corners: 1, // Corner roundness (0..1)
-                    rotate: 0, // The rotation offset
-                    color: '#FFF', // #rgb or #rrggbb
-                    speed: 1, // Rounds per second
-                    trail: 60, // Afterglow percentage
-                    shadow: false, // Whether to render a shadow
-                    hwaccel: false, // Whether to use hardware acceleration
-                    className: 'spinner', // The CSS class to assign to the spinner
-                    zIndex: 2e9, // The z-index (defaults to 2000000000)
-                    top: 'auto', // Top position relative to parent in px
-                    left: 'auto' // Left position relative to parent in px
+                var request = {
+                    reference: place.reference
                 };
-                var target = document.createElement("div");
-                document.body.appendChild(target);
-                var spinner = new Spinner(opts).spin(target);
-                var overlay = iosOverlay({
-                    text: "Loading... 0%",
-                    spinner: spinner
+                service.getDetails(request, function(details, status) {
+
+                    html = "";
+                    html += "<p> Name: " + details.name + "</p>";
+                    infowindow.setContent(html);
+                    infowindow.open(map, marker);
+                    map.setZoom(16);
+                    map.panTo(marker.position);
+
+                    html2 = ""
+                    html2 += "<h2>" + details.name + "</h2><br><p> Rating: " + details.rating + "</p><p> Address: " + details.formatted_address + "</p>Phone: <p>" + details.international_phone_number + "</p>";
+                    for (var i = 0; i < details.photos.length; i++) {
+                        html2 += "<img class=\"img-thumbnail\" src=\"" + details.photos[i].getUrl({
+                            'maxWidth': 200,
+                            'maxHeight': 200
+                        }) + "\" >";
+                    }
+
+                    html2 += "<ul style=\"list-style-type:disc\">";
+                    for (var i = 0; i < details.reviews.length; i++) {
+
+                        html2 += '<p>Author: ' + details.reviews[i].author_name + '</p>';
+                        html2 += '<p>' + details.reviews[i].text + '</p>';
+                        html2 += '<p>Rating: ' + details.reviews[i].rating + '</div>';
+                    }
+                    html2 += "</ul>"
+                    elem = document.getElementById("details");
+                    elem.innerHTML = html2;
                 });
 
-                window.setTimeout(function() {
-                    overlay.update({
-                        icon: "spinner/img/check.png",
-                        text: "Success"
-                    });;
-                }, 23000);
-
-
-
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "amusement_park");
-                    overlay.update({
-
-                        text: "Loading... 8%"
-                    });
-                }, 0);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "aquarium");
-                    overlay.update({
-
-                        text: "Loading... 16%"
-                    });
-                }, 2000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "art_gallery");
-                    overlay.update({
-
-                        text: "Loading... 24%"
-                    });
-                }, 4000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "church");
-                    overlay.update({
-
-                        text: "Loading... 32%"
-                    });
-                }, 6000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "city_hall");
-                    overlay.update({
-
-                        text: "Loading... 40%"
-                    });
-                }, 8000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "zoo");
-                    overlay.update({
-
-                        text: "Loading... 48%"
-                    });
-                }, 10000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "stadium");
-                    overlay.update({
-
-                        text: "Loading... 56%"
-                    });
-                }, 12000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "library");
-                    overlay.update({
-
-                        text: "Loading... 64%"
-                    });
-                }, 14000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "lodging");
-                    overlay.update({
-
-                        text: "Loading... 72%"
-                    });
-                }, 16000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "restaurant");
-                    overlay.update({
-
-                        text: "Loading... 80%"
-                    });
-                }, 18000);
-
-                setTimeout(function() {
-                    getPlaces(resultsMap, results[0], "bar");
-                    overlay.update({
-
-                        text: "Loading... 88%"
-                    });
-                }, 20000);
-
-                setTimeout(function() {
-                    printRestaurantsAndBars();
-                    overlay.update({
-
-                        text: "Loading... 95%"
-                    });
-                }, 21000);
-                setTimeout(function() {
-                    printAccomodations();
-                    overlay.update({
-
-                        text: "Loading... 97%"
-                    });
-                }, 22000);
-                setTimeout(function() {
-                    printTouristAttractions();
-                    overlay.update({
-
-                        text: "Loading... 99%"
-                    });
-                }, 23000);
-
-                window.setTimeout(function() {
-                    overlay.hide();
-                }, 24000);
-
-            } else {
-                alert('Geocode was not successful for the following reason: ' + status);
-            }
-        });
-    }
-
-
-    function createMarker(marker, place) {
-
-
-        google.maps.event.addListener(marker, 'click', function() {
-            
-
-
-var request = { reference: place.reference };
-    service.getDetails(request, function(details, status) {
-      
-            html = "";
-            html += "<p> Name: " + details.name + "</p>";
-            infowindow.setContent(html);
-            infowindow.open(map, marker);
-            map.setZoom(16);
-            map.panTo(marker.position);
-            
-            html2 = ""
-            html2 += "<h2>" + details.name + "</h2><br><p> Rating: " + details.rating + "</p><p> Address: " + details.formatted_address + "</p>Phone: <p>" + details.international_phone_number + "</p>";
-            for (var i = 0; i < details.photos.length; i++) {
-               html2 += "<img class=\"img-thumbnail\" src=\"" + details.photos[i].getUrl({
-                    'maxWidth': 200,
-                    'maxHeight': 200
-                }) + "\" >";
-            }
-            
-            html2 += "<ul style=\"list-style-type:disc\">";
-            for (var i = 0; i < details.reviews.length; i++) {
-              
-                html2 += '<p>Author: ' + details.reviews[i].author_name + '</p>';
-                html2 += '<p>' + details.reviews[i].text + '</p>';
-                html2 += '<p>Rating: ' + details.reviews[i].rating + '</div>';
-            }
-            html2 += "</ul>"
-            elem = document.getElementById("details");
-            elem.innerHTML = html2;
-    });
-    
-        });
-        markers.push(marker);
-
-    }
-
-
-
-    function markerdis(i) {
-        google.maps.event.trigger(markers[i], "click");
-    }
-
-    function removeDuplicates(arr, prop) {
-        var obj = {};
-        for (var i = 0, len = arr.length; i < len; i++) {
-            if (!obj[arr[i][prop]]) obj[arr[i][prop]] = arr[i];
-        }
-        var newArr = [];
-        for (var key in obj) newArr.push(obj[key]);
-        return newArr;
-    }
-
-    function printAccomodations() {
-        var myStr = "";
-        row = 0;
-        var div = document.getElementById('accomtable');
-
-        var x = new Array();
-        var a = typeToPlace["lodging"];
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["lodging"][i]);
-        }
-
-        a = x;
-
-        a = removeDuplicates(a, 'name');
-
-        for (var i = 0; i < a.length; i++) {
-            var place = a[i];
-            var image = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
-
-            var marker = new google.maps.Marker({
-                map: map,
-                icon: image,
-                title: place.name,
-                position: place.geometry.location
             });
-
-
-
-            createMarker(marker, place);
-
-            if (row % 4 == 0) {
-                myStr += "<div class=\"row\">";
-            }
-            if (place.photos != null) {
-                myStr += "<div class=\"col\">";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                    'maxWidth': 200,
-                    'maxHeight': 200
-                }) + "\" >";
-
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>"
-                row++;
-            } else {
-                myStr += "<div class=\"col\">";
-
-                //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>";
-                row++;
-            }
-
-            if (row % 4 == 0) {
-                myStr += "</div>";
-            }
-
-
-
+            markers.push(marker);
 
         }
-        myStr += "</div>"
-        div.innerHTML += myStr;
-
-    }
 
 
 
-
-    function printRestaurantsAndBars() {
-        var myStr = "";
-        row = 0;
-        var div = document.getElementById('resttable');
-
-        var x = new Array();
-        var a = typeToPlace["restaurant"];
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["restaurant"][i]);
+        function markerdis(i) {
+            google.maps.event.trigger(markers[i], "click");
         }
 
-        a = typeToPlace["bar"];
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["bar"][i]);
-        }
-        a = x;
-
-        a = removeDuplicates(a, 'name');
-
-        for (var i = 0; i < a.length; i++) {
-            var place = a[i];
-
-            var image = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
-
-            var marker = new google.maps.Marker({
-                map: map,
-                icon: image,
-                title: place.name,
-                position: place.geometry.location
-            });
-
-            createMarker(marker, place);
-
-
-            if (row % 4 == 0) {
-                myStr += "<div class=\"row\">";
+        function removeDuplicates(arr, prop) {
+            var obj = {};
+            for (var i = 0, len = arr.length; i < len; i++) {
+                if (!obj[arr[i][prop]]) obj[arr[i][prop]] = arr[i];
             }
-            if (place.photos != null) {
-                myStr += "<div class=\"col\">";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                    'maxWidth': 200,
-                    'maxHeight': 200
-                }) + "\" >";
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>"
-                row++;
-            } else {
-                myStr += "<div class=\"col\">";
+            var newArr = [];
+            for (var key in obj) newArr.push(obj[key]);
+            return newArr;
+        }
 
-                //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>";
-                row++;
+        function printAccomodations() {
+            var myStr = "";
+            row = 0;
+            var div = document.getElementById('accomtable');
+
+            var x = new Array();
+            var a = typeToPlace["lodging"];
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["lodging"][i]);
             }
 
-            if (row % 4 == 0) {
-                myStr += "</div>";
+            a = x;
+
+            a = removeDuplicates(a, 'name');
+
+            for (var i = 0; i < a.length; i++) {
+                var place = a[i];
+                var image = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: image,
+                    title: place.name,
+                    position: place.geometry.location
+                });
+
+
+
+                createMarker(marker, place);
+
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+
+
+
+            }
+            myStr += "</div>"
+            div.innerHTML += myStr;
+
+        }
+
+
+
+
+        function printRestaurantsAndBars() {
+            var myStr = "";
+            row = 0;
+            var div = document.getElementById('resttable');
+
+            var x = new Array();
+            var a = typeToPlace["restaurant"];
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["restaurant"][i]);
             }
 
-
-
-        }
-        myStr += "</div>"
-        div.innerHTML += myStr;
-
-    }
-
-    function printTouristAttractions() {
-
-        var myStr = "";
-        var div = document.getElementById('loctable');
-        row = 0;
-
-        var x = new Array();
-        var a = typeToPlace["amusement_park"];
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["amusement_park"][i]);
-        }
-
-        a = typeToPlace["aquarium"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["aquarium"][i]);
-        }
-
-        a = typeToPlace["art_gallery"];
-
-        if (a != null) {
-
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["art_gallery"][i]);
-        }
-
-        a = typeToPlace["church"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["church"][i]);
-        }
-
-        a = typeToPlace["city_hall"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["city_hall"][i]);
-        }
-
-        a = typeToPlace["courthouse"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["courthouse"][i]);
-        }
-
-        a = typeToPlace["hindu_temple"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["hindu_temple"][i]);
-        }
-
-        a = typeToPlace["zoo"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["zoo"][i]);
-        }
-
-        a = typeToPlace["synagogue"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["synagogue"][i]);
-        }
-
-        a = typeToPlace["stadium"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["stadium"][i]);
-        }
-
-        a = typeToPlace["library"];
-
-        if (a != null) {
-            for (var i = 0; i < a.length; i++)
-                x.push(typeToPlace["library"][i]);
-        }
-
-        a = x;
-
-        a = removeDuplicates(a, 'name');
-        for (var i = 0; i < a.length; i++) {
-            var place = a[i];
-
-            var image = {
-                url: place.icon,
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34),
-                scaledSize: new google.maps.Size(25, 25)
-            };
-
-            var marker = new google.maps.Marker({
-                map: map,
-                icon: image,
-                title: place.name,
-                position: place.geometry.location
-            });
-
-            createMarker(marker, place);
-
-            if (row % 4 == 0) {
-                myStr += "<div class=\"row\">";
+            a = typeToPlace["bar"];
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["bar"][i]);
             }
-            if (place.photos != null) {
-                myStr += "<div class=\"col\">";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
-                    'maxWidth': 200,
-                    'maxHeight': 200
-                }) + "\" >";
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>"
-                row++;
-            } else {
-                myStr += "<div class=\"col\">";
+            a = x;
 
-                //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
-                myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
-                myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
-                myStr += "</div>";
-                row++;
+            a = removeDuplicates(a, 'name');
+
+            for (var i = 0; i < a.length; i++) {
+                var place = a[i];
+
+                var image = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: image,
+                    title: place.name,
+                    position: place.geometry.location
+                });
+
+                createMarker(marker, place);
+
+
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+
+
+            }
+            myStr += "</div>"
+            div.innerHTML += myStr;
+
+        }
+
+        function printTouristAttractions() {
+
+            var myStr = "";
+            var div = document.getElementById('loctable');
+            row = 0;
+
+            var x = new Array();
+            var a = typeToPlace["amusement_park"];
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["amusement_park"][i]);
             }
 
-            if (row % 4 == 0) {
-                myStr += "</div>";
+            a = typeToPlace["aquarium"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["aquarium"][i]);
             }
 
+            a = typeToPlace["art_gallery"];
+
+            if (a != null) {
+
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["art_gallery"][i]);
+            }
+
+            a = typeToPlace["church"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["church"][i]);
+            }
+
+            a = typeToPlace["city_hall"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["city_hall"][i]);
+            }
+
+            a = typeToPlace["courthouse"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["courthouse"][i]);
+            }
+
+            a = typeToPlace["hindu_temple"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["hindu_temple"][i]);
+            }
+
+            a = typeToPlace["zoo"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["zoo"][i]);
+            }
+
+            a = typeToPlace["synagogue"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["synagogue"][i]);
+            }
+
+            a = typeToPlace["stadium"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["stadium"][i]);
+            }
+
+            a = typeToPlace["library"];
+
+            if (a != null) {
+                for (var i = 0; i < a.length; i++)
+                    x.push(typeToPlace["library"][i]);
+            }
+
+            a = x;
+
+            a = removeDuplicates(a, 'name');
+            for (var i = 0; i < a.length; i++) {
+                var place = a[i];
+
+                var image = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                var marker = new google.maps.Marker({
+                    map: map,
+                    icon: image,
+                    title: place.name,
+                    position: place.geometry.location
+                });
+
+                createMarker(marker, place);
+
+                if (row % 4 == 0) {
+                    myStr += "<div class=\"row\">";
+                }
+                if (place.photos != null) {
+                    myStr += "<div class=\"col\">";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({
+                        'maxWidth': 200,
+                        'maxHeight': 200
+                    }) + "\" >";
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>"
+                    row++;
+                } else {
+                    myStr += "<div class=\"col\">";
+
+                    //div.innerHTML += "<img class=\"img-thumbnail\" src=\"" + place.photos[0].getUrl({'maxWidth': 200, 'maxHeight': 200}) + "\" >";
+                    myStr += "<img class=\"img-thumbnail\" src=\"" + place.icon + "\" width=\"100px\" height=\"100px\" \>";
+                    myStr += '<a href="javascript:markerdis(' + (markers.length - 1) + ')">' + '<h5>' + place.name + '</h5></a>';
+                    myStr += "</div>";
+                    row++;
+                }
+
+                if (row % 4 == 0) {
+                    myStr += "</div>";
+                }
+
+
+            }
+            myStr += "</div>"
+            div.innerHTML += myStr;
 
         }
-        myStr += "</div>"
-        div.innerHTML += myStr;
-
-    }
     </script>
 
-    
+
     <style>
         /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
@@ -654,71 +656,74 @@ var request = { reference: place.reference };
 
 <body>
     <center>
-        <h3>Search for your next Holiday Destination</h3></center>
+        <h3>Search for your next Holiday Destination</h3>
+    </center>
     <br>
-  
 
-</div>
+
+    </div>
     <div id="searchbox">
         <input id="address" type="textbox" value="Drogheda, Ireland">
         <input id="submit" type="button" value="Search" data-toggle="modal" data-target="#myModal">
         <br><br>
-        <p style="color:red;">Enter a location into the search bar and hit search to find it. Expand and lookup tourist attractions, accomodations and restaurants along the side after the search is complete. Click on an item and see the details below and where it is on the map.</h3>
+        <p style="color:red;">Enter a location into the search bar and hit search to find it. Expand and lookup tourist attractions, accomodations and restaurants along the side after the search is complete. Click on an item and see the details below and where it is on the
+            map.
+            </h3>
     </div>
     <br>
-    
+
     <br>
-       <div class="row" style="height: 100%;">
-  <div class="col">
-    <div id="map"></div>
-  </div>
-  <div id="accordion" class="col" style="overflow:scroll; height:60%;">
-  <div class="card">
-    <div class="card-header" id="headingOne">
-      <h5 class="mb-0">
-        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+    <div class="row" style="height: 100%;">
+        <div class="col">
+            <div id="map"></div>
+        </div>
+        <div id="accordion" class="col" style="overflow:scroll; height:60%;">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
           Tourist Attractions
         </button>
-      </h5>
-    </div>
+                    </h5>
+                </div>
 
-    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-      <div class="card-body" id="loctable">
-        
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingTwo">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body" id="loctable">
+
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
           Accomodation
         </button>
-      </h5>
-    </div>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-      <div class="card-body" id="accomtable">
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header" id="headingThree">
-      <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div class="card-body" id="accomtable">
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
           Restaurants
         </button>
-      </h5>
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                    <div class="card-body" id="resttable">
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-      <div class="card-body" id="resttable">
-      </div>
-    </div>
-  </div>
-</div>
-  
-</div>
-   
-<div id="details"></div>
+
+    <div id="details"></div>
 
 
 
