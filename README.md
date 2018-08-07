@@ -80,6 +80,7 @@ One problem during testing was that the google maps sometimes did not load when 
 
 Deployed on github:
 
+https://andrew-carton.github.io/holidaymaps/
 
 
 ## Credits
